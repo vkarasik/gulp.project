@@ -1,0 +1,20 @@
+npm init
+npm install --save-dev gulp
+npm install --save-dev gulp-less
+npm install --save-dev gulp-autoprefixer
+npm install --save-dev gulp-clean-css
+npm install --save-dev gulp-rigger
+npm install --save-dev gulp-useref
+npm install --save-dev gulp-imagemin
+npm install --save-dev gulp-sourcemaps
+npm install --save-dev del 
+npm install --save-dev browser-sync
+npm install --save-dev gulp-rename
+npm install gulp-if --save-dev
+
+npm install --save-dev gulp gulp-less gulp-autoprefixer gulp-clean-css gulp-rename gulp-rigger gulp-useref gulp-imagemin gulp-sourcemaps del browser-sync gulp-if gulp-uglify
+
+удаление node_modules
+$ npm i -g rimraf
+$ cd /path/to/project
+$ rimraf node_modules

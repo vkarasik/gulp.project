@@ -13,6 +13,7 @@ var gulpif = require('gulp-if');
 var uglify = require('gulp-uglifyjs'); // сжатие JS
 var browserSync = require('browser-sync'); // Browser Sync
 var reload = browserSync.reload;
+var notify = require('gulp-notify'); // уведомления
 
 var path = {
     dist: { //Директория для продакшена
@@ -56,7 +57,8 @@ gulp.task('less', function () {
     .pipe(autoprefixer({browsers: ['> 1%', 'IE 7'], cascade: true}))
 	.pipe(sourcemaps.write()) // карта кода
 	.pipe(gulp.dest(path.app.css))
-	.pipe(reload({stream: true})); //Перезагрузим сервер для обновлений
+	.pipe(reload({stream: true})) //Перезагрузим сервер для обновлений
+	.pipe(notify({ message: 'Изменен <%= file.relative %>' }));
 });
 
 // подключение блоков html
@@ -64,7 +66,8 @@ gulp.task('rigger', function () {
     gulp.src(path.app.html)
         .pipe(rigger()) //Прогоним через rigger
         .pipe(gulp.dest('app'))
-        .pipe(reload({stream: true})); //Перезагрузим сервер для обновлений
+        .pipe(reload({stream: true})) //Перезагрузим сервер для обновлений
+		.pipe(notify({ message: 'Изменен <%= file.relative %>' }));
 });
 
 // минификация css

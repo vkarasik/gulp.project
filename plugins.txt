@@ -12,8 +12,9 @@ npm install --save-dev browser-sync
 npm install --save-dev gulp-rename
 npm install gulp-if --save-dev
 npm install --save-dev gulp-notify
+npm install --save-dev gulp-uglify
 
-npm install --save-dev gulp gulp-less gulp-autoprefixer gulp-clean-css gulp-rename gulp-rigger gulp-useref gulp-imagemin gulp-sourcemaps del browser-sync gulp-if gulp-uglify gulp-notify
+npm install --save-dev gulp gulp-less gulp-autoprefixer gulp-clean-css gulp-rename gulp-rigger gulp-useref gulp-imagemin gulp-sourcemaps del browser-sync gulp-if gulp-uglify gulp-notify gulp-uglify
 
 удаление node_modules
 $ npm i -g rimraf

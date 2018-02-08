@@ -1,13 +1,13 @@
 var gulp = require('gulp'); // gulp
 var less = require('gulp-less'); // less
 var path = require('path');
-var autoprefixer = require('gulp-autoprefixer'); // браузерные префиксы
 var rigger = require('gulp-rigger'); // импорт файлов
 var cleanCSS = require('gulp-clean-css'); // минификация css
 var rename = require('gulp-rename'); // переименование
 var useref = require('gulp-useref'); // конкатенация
 var imagemin = require('gulp-imagemin'); // сжатие изображений
 var sourcemaps = require('gulp-sourcemaps');// карта кода css
+var autoprefixer = require('gulp-autoprefixer'); // браузерные префиксы
 var del = require('del');// очистка
 var gulpif = require('gulp-if');
 var uglify = require('gulp-uglifyjs'); // сжатие JS
@@ -26,11 +26,12 @@ var path = {
     app: { //Директория для разработки
         html: 'app/template/*.html',
         include: 'app/template/include/*.html',
-        js: 'app/js/*.js',
+        js: 'app/js/**/*.*',
         less: 'app/less/*.less',
-        css: 'app/css/',
+        css: 'app/css/*.css',
         img: 'app/img/**/*.*',
-        fonts: 'app/fonts/**/*.*'
+        fonts: 'app/fonts/**/*.*',
+        php: 'app/*.php',
     },
     clean: 'dist'
 };
@@ -49,16 +50,17 @@ gulp.task('browserSync', function() {
   })
 });
 
-// конвертируем less в css
+// компилируем less в css
 gulp.task('less', function () {
   return gulp.src(path.app.less)
 	.pipe(sourcemaps.init()) // карта кода
     .pipe(less())
     .pipe(autoprefixer({browsers: ['> 1%', 'IE 7'], cascade: true}))
 	.pipe(sourcemaps.write()) // карта кода
-	.pipe(gulp.dest(path.app.css))
+    .pipe(rename({ suffix: '.min'}))
+	.pipe(gulp.dest('app/css'))
 	.pipe(reload({stream: true})) //Перезагрузим сервер для обновлений
-	.pipe(notify({ message: 'Изменен <%= file.relative %>' }));
+    .pipe(notify({ message: 'Изменен <%= file.relative %>' }));
 });
 
 // подключение блоков html
@@ -71,12 +73,19 @@ gulp.task('rigger', function () {
 });
 
 // минификация css
-gulp.task('minify-css', function() {
-  return gulp.src('dist/css/*.css')
+gulp.task('cleanCSS', function() {
+  return gulp.src(path.app.css)
     .pipe(cleanCSS({compatibility: 'ie8'}))
     //.pipe(rename({ suffix: '.min'}))
     .pipe(gulp.dest(path.dist.css))
     .pipe(reload({stream: true}));
+});
+
+// Объедениение стилей в один
+gulp.task('useref', function () {
+    return gulp.src('app/*.html')
+        .pipe(useref())
+        .pipe(gulp.dest(path.dist.html));
 });
 
 // сжатие изображений
@@ -92,13 +101,29 @@ gulp.task('fonts', function() {
     .pipe(gulp.dest(path.dist.fonts))
 });
 
-// конкантенация
-gulp.task('useref', function(){
-      return gulp.src('app/*.html')
-        .pipe(useref())
-        .pipe(gulpif('*.css', cleanCSS({compatibility: 'ie8'})))
-        .pipe(gulpif('*.js', uglify()))
-        .pipe(gulp.dest(path.dist.html));
+// копирование html
+gulp.task('html', function() {
+    gulp.src('app/*.html')
+    .pipe(gulp.dest(path.dist.html))
+});
+
+// копирование js
+gulp.task('js', function() {
+    gulp.src(path.app.js)
+    .pipe(gulp.dest(path.dist.js))
+});
+
+// копирование php
+gulp.task('php', function() {
+    gulp.src(path.app.php)
+    .pipe(gulp.dest(path.dist.html))
+});
+
+// минификация основного js
+gulp.task('jsmin', function() {
+    gulp.src('app/js/script.js')
+    .pipe(uglify())
+    .pipe(gulp.dest(path.dist.js))
 });
 
 // очистка
@@ -106,24 +131,16 @@ gulp.task('clean', function() {
   del(path.clean);
 });
 
-// ослеживание изменений
+// Отслеживание изменений
 gulp.task('watch', function(){
-    gulp.watch(path.app.less, ['less']);
+    gulp.watch(path.app.less, ['less']); //следим за изменением less и запускаем компилятор
     gulp.watch(path.app.html, ['rigger']);
     gulp.watch(path.app.include, ['rigger']);
+    gulp.watch(path.app.js, ['rigger']); // следим за изменением js
 });
 
-
+// Дефолтный таск для разработки
 gulp.task('default', ['browserSync', 'less', 'rigger', 'watch']);
 
 // Сборка проекта
-gulp.task('build', ['useref', 'imagemin', 'fonts']);
-
-
-
-
-
-
-
-
-
+gulp.task('build', ['cleanCSS', 'imagemin', 'fonts', 'js', 'html', 'php']);
